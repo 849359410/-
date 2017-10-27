@@ -21,6 +21,7 @@ import goodslist from './components/site/goodslist.vue';
 //导入商品详情页面
 import goodsinfo from './components/site/goodsinfo.vue';
 
+
 var router = new vueRouter({
     routes: [
         //璁剧疆璺敱榛樿璺宠浆
@@ -79,7 +80,7 @@ Vue.filter('datefmt', (input, fmtstring) => {
         return y + '-' + m + '-' + d;
     }
     if (fmtstring == 'YYYY-MM-DD HH:mm:ss') {
-        return y + '-' + m + '-' + d + '' + h + ':' + mi + ':' + s;
+        return y + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + s;
     }
 });
 

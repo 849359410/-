@@ -22,12 +22,16 @@
                     <!--商品图片-->
                     <div class="pic-box">
                         <div class="magnifier" id="magnifier1">
-    <div class="magnifier-container">
-        <div class="images-cover"></div>
-        <!--当前图片显示容器-->
-        <div class="move-view"></div>
-        <!--跟随鼠标移动的盒子-->
-        </div>
+                        <div class="magnifier-container">
+                            <div class="images-cover">
+
+                            </div>
+                            <!--当前图片显示容器-->
+                            <div class="move-view">
+                                
+                            </div>
+                            <!--跟随鼠标移动的盒子-->
+                            </div>
         <div class="magnifier-assembly">
         <div class="magnifier-btn">
                 <span class="magnifier-btn-left">&lt;</span>
@@ -38,7 +42,7 @@
                 <ul class="clearfix animation03">
                     <li v-for="item in ginfo.imglist" key="item.id">
                         <div class="small-img">
-                            <img :src="item.original_path" />
+                            <img :src="item.original_path"/>
                         </div>
                     </li>
                     
@@ -88,10 +92,10 @@
                                         <a class="add" onclick="addCartNum(1);">+</a>
                                         <a class="remove" onclick="addCartNum(-1);">-</a>
                                     </div>
-<span class="stock-txt">
-库存
-<em id="commodityStockNum">{{ginfo.goodsinfo.stock_quantity}}</em>件
-</span>
+                                    <span class="stock-txt">
+                                    库存
+                                    <em id="commodityStockNum">{{ginfo.goodsinfo.stock_quantity}}</em>件
+                                    </span>
                                 </dd>
                             </dl>
                             <dl>
@@ -140,22 +144,42 @@
                                 </div>
                                 <div class="conn-box">
                                     <div class="editor">
-                                        <textarea id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
+                                        <textarea id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" 
+                                                nullmsg="请填写评论内容！" v-model="txtContent"></textarea>
                                         <span class="Validform_checktip"></span></div>
                                     <div class="subcon">
-                                        <input id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
+                                        <input type="button" value="提交评论" class="submit" @click="submitComment">
                                         <span class="Validform_checktip"></span></div>
                                 </div>
                             </form>
                             <ul id="commentList" class="list-box">
-                                <p style="margin:5px 0 15px 69px;line-height:42px;text-align:center;border:1px solid #f7f7f7;">暂无评论，快来抢沙发吧！</p>
-                                <li><div class="avatar-box"><i class="iconfont icon-user-full"></i></div><div class="inner-box"><div class="info"><span>匿名用户</span>
-                                    <span>2017/10/23 14:58:59</span></div><p>testtesttest</p></div></li><li><div class="avatar-box"><i class="iconfont icon-user-full"></i></div><div class="inner-box"><div class="info"><span>匿名用户</span>
-                                <span>2017/10/23 14:59:36</span></div><p>很清晰调动单很清晰调动单</p></div></li>
+                                <p v-if="commentList.length<=0" style="margin:5px 0 15px 69px;line-height:42px;text-align:center;border:1px solid #f7f7f7;">
+                                    暂无评论，快来抢沙发吧！
+                                </p>
+                                <li v-for="item in commentList" :key="item.id">
+                                    <div class="avatar-box">
+                                        <i class="iconfont icon-user-full"></i>
+                                        </div>
+                                        <div class="inner-box">
+                                            <div class="info">
+                                                <span>{{item.user_name}}</span>
+                                    <span>{{item.add_time | datefmt('YYYY-MM-DD HH:mm:ss')}}</span>
+                                    </div>
+                                        <p>{{item.content}}</p>
+                                    </div>
+                                 </li>
                             </ul>
                             <!--放置页码-->
                             <div class="page-box" style="margin:5px 0 0 62px">
-                                <div id="pagination" class="digg"><span class="disabled">« 上一页</span><span class="current">1</span><span class="disabled">下一页 »</span></div>
+                                <el-pagination
+                                    @size-change="pageSizeChange"
+                                    @current-change="pageIndexChange"
+                                    :current-page="pageIndex"
+                                    :page-sizes="[10, 20, 30, 50]"
+                                    :page-size="pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :total="totalCount">
+                                </el-pagination>
                             </div>
                             <!--/放置页码-->
                         </div>
@@ -207,11 +231,9 @@
     // 导入jquery插件文件
     import '../../../statics/site/js/jqplugins/imgzoom/magnifier.js';
 
-    $(function() {
-        $('#magnifier1').imgzoon({
-            magnifier: '#magnifier1'
-        });
-    });
+    // $(function() {
+    //     $('#magnifier1').imgzoon({magnifier: '#magnifier1'});
+    // });
 
     export default {
         components: {
@@ -220,12 +242,18 @@
         data() {
             return {
                 isContent: true,
+                txtContent: '',
+                pageIndex: 1,
+                pageSize: 10,
+                totalCount: 0,
+                commentList: [],
                 ginfo: {}
 
             }
         },
         created() {
             this.getgoods();
+            this.getCommentList();
         },
         watch: {
             '$route': function() {
@@ -233,6 +261,40 @@
             }
         },
         methods: {
+            pageSizeChange(val) {
+                this.pageSize = val;
+                this.getCommentList();
+            },
+            pageIndexChange(val) {
+                this.pageIndex = val;
+                this.getCommentList();
+            },
+            //分页获取当前商品的评论数据
+            getCommentList() {
+                var goodsid = this.$route.params.goodsid;
+                this.$http.get('site/comment/getbypage/goods/' + goodsid + '?pageIndex=' + this.pageIndex + '&pageSize=' + this.pageSize)
+                    .then(res => {
+                        this.commentList = res.data.message;
+
+                        //分页组件的总条数赋值
+                        this.totalCount = res.data.totoalcount;
+                    });
+            },
+            //提交评论
+            submitComment() {
+                //1.0判断如果文本框中没值，提醒用户
+                if (this.txtContent.length <= 0) {
+                    this.$message.error('评论信息必须填写');
+                    return;
+                }
+                var goodsid = this.$route.params.goodsid;
+                this.$http.post('/site/validate/comment/post/goods/' + goodsid, "commenttxt=" + this.txtContent)
+                    .then(res => {
+                        this.txtContent = '';
+                        //3.0刷新当前商品的评论数据
+                        this.getCommentList();
+                    })
+            },
             //控制tab切换
             changeIsContent(iscontent) {
                 this.isContent = iscontent;
@@ -242,11 +304,16 @@
                 this.$http.get('/site/goods/getgoodsinfo/' + goodsid).then(res => {
                     if (res.data.status == 1) {
                         this.$message.error(res.data.message);
-                        // alert(res.data.status);
+                        alert(res.data.status);
                         return;
                     }
                     this.ginfo = res.data.message;
                     console.log(res.data.message);
+                    setTimeout(() => {
+                        $('#magnifier1').imgzoon({
+                            magnifier: '#magnifier1'
+                        });
+                    }, 100)
                 })
             }
         }
