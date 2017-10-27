@@ -277,7 +277,7 @@
                         this.commentList = res.data.message;
 
                         //分页组件的总条数赋值
-                        this.totalCount = res.data.totoalcount;
+                        this.totalCount = res.data.totalcount;
                     });
             },
             //提交评论
