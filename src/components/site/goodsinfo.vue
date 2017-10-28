@@ -85,12 +85,9 @@
                                 <dt>购买数量</dt>
                                 <dd>
                                     <div class="stock-box">
-                                        <input id="commodityChannelId" type="hidden" value="2">
-                                        <input id="commodityArticleId" type="hidden" value="98">
-                                        <input id="commodityGoodsId" type="hidden" value="0">
-                                        <input id="commoditySelectNum" type="text" maxlength="9" value="1" maxvalue="10" onkeydown="return checkNumber(event);">
-                                        <a class="add" onclick="addCartNum(1);">+</a>
-                                        <a class="remove" onclick="addCartNum(-1);">-</a>
+                                        <el-input-number v-model="buyCount" @change="buyCountChanage" :min="1">
+
+                                     </el-input-number> 
                                     </div>
                                     <span class="stock-txt">
                                     库存
@@ -101,8 +98,8 @@
                             <dl>
                                 <dd>
                                     <div class="btn-buy" id="buyButton">
-                                        <button class="buy" onclick="cartAdd(this,'/',1,'/shopping.html');">立即购买</button>
-                                        <button class="add" onclick="cartAdd(this,'/',0,'/cart.html');">加入购物车</button>
+                                        <button class="buy">立即购买</button>
+                                        <button class="add" @click="addCar">加入购物车</button>
                                     </div>
                                 </dd>
                             </dl>
@@ -231,6 +228,12 @@
     // 导入jquery插件文件
     import '../../../statics/site/js/jqplugins/imgzoom/magnifier.js';
 
+
+    //导入vm
+    import {
+        vm,
+        key
+    } from '../../kits/vm.js';
     // $(function() {
     //     $('#magnifier1').imgzoon({magnifier: '#magnifier1'});
     // });
@@ -241,6 +244,7 @@
         },
         data() {
             return {
+                buyCount: 1,
                 isContent: true,
                 txtContent: '',
                 pageIndex: 1,
@@ -261,6 +265,11 @@
             }
         },
         methods: {
+            //点击加入购物车按钮的时候触发
+            addCar() {
+                // vm.$emit(key, this.buyCount);
+                this.$store.dispatch('changeBuyCount', this.buyCount);
+            },
             pageSizeChange(val) {
                 this.pageSize = val;
                 this.getCommentList();

@@ -85,9 +85,53 @@ Vue.filter('datefmt', (input, fmtstring) => {
 });
 
 
+var state = {
+    //购物车中的购买数量
+    buyCount: 0
+}
+
+
+var actions = {
+    changeBuyCount({ commit }, parmsBuyCount) {
+        commit('changeBuyCount', parmsBuyCount);
+    }
+}
+
+var mutations = {
+    changeBuyCount(state, parmsBuyCount) {
+        state.buyCount += parmsBuyCount;
+    }
+}
+
+var getters = {
+
+}
+
+import vuex from 'vuex';
+Vue.use(vuex);
+
+// 4.0 实例化一个Store对象
+var store = new vuex.Store({
+    state,
+    actions,
+    mutations,
+    getters
+});
+
+
+//实例化一个Store对象
+// var store = new vuex.store({
+//     state,
+//     actions,
+//     mutations,
+//     getters
+// })
+
+
 new Vue({
     el: '#app',
     router,
+    store,
     // render: create => create(App),
     template: '<App/>',
     components: { App }

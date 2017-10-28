@@ -10,8 +10,7 @@
               <a target="_blank" href="#"></a>
             </div>
             <div id="menu" class="right-box"><a href="/login.html">登录</a><a href="/register.html">注册</a><strong>|</strong>
-              <!--<a href="/content/contact.html"><i class="iconfont icon-phone"></i>联系我们</a>
-                                     <a href="/cart.html"><i class="iconfont icon-cart"></i>购物车(<span id="shoppingCartCount"><script type="text/javascript" src="/tools/submit_ajax.ashx?action=view_cart_count"></script></span>)</a>-->
+                                     <a href="/cart.html"><i class="iconfont icon-cart"></i>购物车(<span id="shoppingCartCount">{{this.$store.state.buyCount}}</span>)</a>
             </div>
           </div>
         </div>
@@ -73,6 +72,14 @@
 </template>
 
 <script>
+    import {
+        vm,
+        key
+    } from '../../kits/vm.js';
+
+
+
+
     $(function() {
         $("#menu2 li a").wrapInner('<span class="out"></span>');
         $("#menu2 li a").each(function() {
@@ -101,8 +108,16 @@
 
 
     export default {
+        data() {
+            return {
+                buycount: 0
+            }
+        },
         mounted() {
-            console.log($);
+            // vm.$on(key, (buycount) => {
+            //     //修改购物车中的数值
+            //     this.buycount += buycount;
+            // });
         }
     }
 </script>
